@@ -1,0 +1,25 @@
+{
+  "name": "rewards-platform",
+  "packageManager": "yarn@4.9.1",
+  "private": true,
+  "workspaces": [
+    "gateway-server",
+    "auth-server",
+    "event-server"
+  ],
+  "scripts": {
+    "dev": "yarn workspaces foreach --parallel --all run start:dev",
+    "dev:gateway": "yarn workspace gateway-server start:dev",
+    "dev:auth": "yarn workspace auth-server start:dev",
+    "dev:event": "yarn workspace event-server start:dev",
+    "build": "yarn workspaces foreach --all run build",
+    "build:gateway": "yarn workspace gateway-server build",
+    "build:auth": "yarn workspace auth-server build",
+    "build:event": "yarn workspace event-server build",
+    "clean": "yarn workspaces foreach --all run clean",
+    "lint": "yarn workspaces foreach --all run lint",
+    "test": "yarn workspaces foreach --all run test",
+    "test:e2e": "yarn workspaces foreach --all run test:e2e",
+    "format": "yarn workspaces foreach --all run format"
+  }
+}

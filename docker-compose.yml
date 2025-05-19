@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    networks:
+      - rewards-network
+
+  gateway-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: gateway
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=hCZWC1o?%iK2g0K[0)}2iL*$_LR&VrbI,z.1-u_MiX9DK>d4Gc
+      - AUTH_SERVICE_HOST=auth-server
+      - AUTH_SERVICE_PORT=3001
+      - EVENT_SERVICE_HOST=event-server
+      - EVENT_SERVICE_PORT=3002
+    depends_on:
+      - auth-server
+      - event-server
+    networks:
+      - rewards-network
+
+  auth-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: auth
+    ports:
+      - 3001:3001
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - JWT_SECRET=hCZWC1o?%iK2g0K[0)}2iL*$_LR&VrbI,z.1-u_MiX9DK>d4Gc
+      - MONGODB_URI=mongodb://root:password@mongodb:27017/auth?authSource=admin
+    depends_on:
+      - mongodb
+    networks:
+      - rewards-network
+
+  event-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: event
+    ports:
+      - 3002:3002
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - JWT_SECRET=hCZWC1o?%iK2g0K[0)}2iL*$_LR&VrbI,z.1-u_MiX9DK>d4Gc
+      - MONGODB_URI=mongodb://root:password@mongodb:27017/events?authSource=admin
+    depends_on:
+      - mongodb
+    networks:
+      - rewards-network
+
+networks:
+  rewards-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

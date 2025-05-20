@@ -1,0 +1,263 @@
+### Env
+@baseUrl = http://localhost:3000
+@apiPath = 
+
+@testUsername = testuser
+@testEmail = test@example.com
+@testPassword = securepassword123
+
+### =============================================
+### SCENARIO 0: API HEALTH CHECK
+### =============================================
+
+### 0.1 Health Check
+# @name welcome
+GET {{baseUrl}}/
+Content-Type: application/json
+
+### =============================================
+### SCENARIO 1: USER AUTHENTICATION
+### =============================================
+
+### 1.1 User Registration
+# @name register
+POST {{baseUrl}}{{apiPath}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "{{testUsername}}",
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+### 1.2 User Login
+# @name login
+POST {{baseUrl}}{{apiPath}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+> {%
+  client.global.set("accessToken", response.body.access_token);
+  client.log("Access Token: " + client.global.get("accessToken"));
+%}
+
+### 1.3 Get User Profile
+# @name profile
+GET {{baseUrl}}{{apiPath}}/auth/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+### =============================================
+### SCENARIO 2: EVENTS MANAGEMENT
+### =============================================
+
+### 2.1 Get All Events
+# @name getAllEvents
+GET {{baseUrl}}{{apiPath}}/events
+Content-Type: application/json
+
+### 2.2 Get Active Events
+# @name getActiveEvents
+GET {{baseUrl}}{{apiPath}}/events/active
+Content-Type: application/json
+
+### 2.3 Create Event (requires operator or admin role)
+# @name createEvent
+POST {{baseUrl}}{{apiPath}}/events
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Test Event",
+  "description": "This is a test event",
+  "startDate": "2023-01-01T00:00:00.000Z",
+  "endDate": "2023-12-31T23:59:59.999Z",
+  "status": "INACTIVE"
+}
+
+> {%
+  client.global.set("eventId", response.body.id);
+  client.log("Created Event ID: " + client.global.get("eventId"));
+%}
+
+### 2.4 Get Event by ID
+# @name getEvent
+GET {{baseUrl}}{{apiPath}}/events/{{eventId}}
+Content-Type: application/json
+
+### 2.5 Update Event (requires operator or admin role)
+# @name updateEvent
+PUT {{baseUrl}}{{apiPath}}/events/{{eventId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated Test Event",
+  "description": "This event has been updated",
+  "startDate": "2023-01-01T00:00:00.000Z",
+  "endDate": "2023-12-31T23:59:59.999Z"
+}
+
+### 2.6 Activate Event (requires operator or admin role)
+# @name activateEvent
+POST {{baseUrl}}{{apiPath}}/events/{{eventId}}/activate
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+### 2.7 Deactivate Event (requires operator or admin role)
+# @name deactivateEvent
+POST {{baseUrl}}{{apiPath}}/events/{{eventId}}/deactivate
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+### =============================================
+### SCENARIO 3: EVENT CONDITIONS MANAGEMENT
+### =============================================
+
+### 3.1 Create Event Condition (requires operator or admin role)
+# @name createEventCondition
+POST {{baseUrl}}{{apiPath}}/event-conditions
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "eventId": "{{eventId}}",
+  "type": "LOGIN_DAYS",
+  "description": "Login for 5 consecutive days",
+  "requiredCount": 5
+}
+
+> {%
+  client.global.set("conditionId", response.body.id);
+  client.log("Created Condition ID: " + client.global.get("conditionId"));
+%}
+
+### 3.2 Get Event Conditions by Event ID
+# @name getEventConditions
+GET {{baseUrl}}{{apiPath}}/event-conditions?eventId={{eventId}}
+Content-Type: application/json
+
+### 3.3 Get Event Condition by ID
+# @name getEventCondition
+GET {{baseUrl}}{{apiPath}}/event-conditions/{{conditionId}}
+Content-Type: application/json
+
+### 3.4 Update Event Condition (requires operator or admin role)
+# @name updateEventCondition
+PUT {{baseUrl}}{{apiPath}}/event-conditions/{{conditionId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "description": "Login for 7 consecutive days",
+  "requiredCount": 7
+}
+
+### =============================================
+### SCENARIO 4: REWARDS MANAGEMENT
+### =============================================
+
+### 4.1 Create Reward (requires operator or admin role)
+# @name createReward
+POST {{baseUrl}}{{apiPath}}/rewards
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "eventId": "{{eventId}}",
+  "name": "Test Reward",
+  "description": "This is a test reward",
+  "quantity": 100
+}
+
+> {%
+  client.global.set("rewardId", response.body.id);
+  client.log("Created Reward ID: " + client.global.get("rewardId"));
+%}
+
+### 4.2 Get Rewards by Event ID
+# @name getRewards
+GET {{baseUrl}}{{apiPath}}/rewards?eventId={{eventId}}
+Content-Type: application/json
+
+### 4.3 Get Reward by ID
+# @name getReward
+GET {{baseUrl}}{{apiPath}}/rewards/{{rewardId}}
+Content-Type: application/json
+
+### 4.4 Update Reward (requires operator or admin role)
+# @name updateReward
+PUT {{baseUrl}}{{apiPath}}/rewards/{{rewardId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated Test Reward",
+  "description": "This reward has been updated",
+  "quantity": 200
+}
+
+### =============================================
+### SCENARIO 5: REWARD REQUESTS MANAGEMENT
+### =============================================
+
+### 5.1 Create Reward Request (requires authentication)
+# @name createRewardRequest
+POST {{baseUrl}}{{apiPath}}/reward-requests
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "eventId": "{{eventId}}",
+  "rewardId": "{{rewardId}}",
+  "requestIdempotencyKey": "{{$guid}}"
+}
+
+> {%
+  client.global.set("requestId", response.body.id);
+  client.log("Created Request ID: " + client.global.get("requestId"));
+%}
+
+### 5.2 Get Reward Requests (requires authentication)
+# @name getRewardRequests
+GET {{baseUrl}}{{apiPath}}/reward-requests
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+### 5.3 Get Reward Request by ID (requires authentication)
+# @name getRewardRequest
+GET {{baseUrl}}{{apiPath}}/reward-requests/{{requestId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+### 5.4 Get Current User's Reward Requests (requires authentication)
+# @name getMyRewardRequests
+GET {{baseUrl}}{{apiPath}}/reward-requests/user/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+### 5.5 Update Reward Request (requires operator or admin role)
+# @name updateRewardRequest
+PUT {{baseUrl}}{{apiPath}}/reward-requests/{{requestId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "status": "COMPLETED"
+}
+
+### 5.6 Get Reward Requests by Status (requires authentication)
+# @name getRewardRequestsByStatus
+GET {{baseUrl}}{{apiPath}}/reward-requests?status=COMPLETED
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+### 5.7 Get Reward Requests by Event ID (requires authentication)
+# @name getRewardRequestsByEventId
+GET {{baseUrl}}{{apiPath}}/reward-requests?eventId={{eventId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json

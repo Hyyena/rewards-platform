@@ -1,16 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
 import { ConditionType, EventCondition } from '../domain/event-condition';
+
+export type EventConditionDocument = HydratedDocument<EventConditionEntity>;
 
 @Schema({
   timestamps: true,
   collection: 'event_conditions',
 })
-export class EventConditionDocument extends Document {
+export class EventConditionEntity {
   @Prop({
     required: true,
     type: MongooseSchema.Types.ObjectId,
-    ref: 'EventDocument',
+    ref: 'EventEntity',
     index: true,
   })
   eventId: string;
@@ -24,6 +26,9 @@ export class EventConditionDocument extends Document {
   @Prop({ required: true, min: 1 })
   requiredCount: number;
 
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
   toEventCondition(): EventCondition {
     return new EventCondition({
       id: this._id.toString(),
@@ -37,8 +42,8 @@ export class EventConditionDocument extends Document {
   }
 }
 
-export const EventConditionSchema = SchemaFactory.createForClass(
-  EventConditionDocument,
-);
-
+export const EventConditionSchema =
+  SchemaFactory.createForClass(EventConditionEntity);
+EventConditionSchema.methods.toEventCondition =
+  EventConditionEntity.prototype.toEventCondition;
 EventConditionSchema.index({ eventId: 1, type: 1 }, { unique: true });

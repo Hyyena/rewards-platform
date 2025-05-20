@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -10,6 +10,8 @@ export enum UserRole {
   ADMIN = 'ADMIN',
 }
 
+export type UserDocument = HydratedDocument<UserEntity>;
+
 @Schema({
   timestamps: true,
   toJSON: {
@@ -19,7 +21,7 @@ export enum UserRole {
     },
   },
 })
-export class User extends Document {
+export class UserEntity {
   @Prop({ required: true, unique: true })
   email: string;
 
@@ -38,6 +40,9 @@ export class User extends Document {
   @Prop({ default: true })
   isActive: boolean;
 
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
   async comparePassword(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);
   }
@@ -55,8 +60,10 @@ export class User extends Document {
   }
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const UserSchema = SchemaFactory.createForClass(UserEntity);
 
+UserSchema.methods.comparePassword = UserEntity.prototype.comparePassword;
+UserSchema.methods.toUser = UserEntity.prototype.toUser;
 UserSchema.pre('save', async function (next) {
   try {
     if (!this.isModified('password')) {

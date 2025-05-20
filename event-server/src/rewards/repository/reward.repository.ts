@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { RewardDocument } from '../schemas/reward.schema';
+import { RewardDocument, RewardEntity } from '../schemas/reward.schema';
 import { Reward } from '../domain/reward';
 
 @Injectable()
 export class RewardRepository {
   constructor(
-    @InjectModel(RewardDocument.name)
+    @InjectModel(RewardEntity.name)
     private readonly rewardModel: Model<RewardDocument>,
   ) {}
 

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
-  EventConditionDocument,
+  EventConditionEntity,
   EventConditionSchema,
 } from './schemas/event-condition.schema';
 import { EventConditionsController } from './controller/event-conditions.controller';
@@ -11,7 +11,7 @@ import { EventConditionRepository } from './repository/event-condition.repositor
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: EventConditionDocument.name, schema: EventConditionSchema },
+      { name: EventConditionEntity.name, schema: EventConditionSchema },
     ]),
   ],
   controllers: [EventConditionsController],

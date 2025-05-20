@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User as UserSchema, UserRole } from '../schemas/user.schema';
-import { User } from '../domain/user.entity';
+import { UserDocument, UserEntity, UserRole } from '../schemas/user.schema';
+import { User } from '../domain/user';
 
 @Injectable()
 export class UserRepository {
   constructor(
-    @InjectModel(UserSchema.name) private readonly userModel: Model<UserSchema>,
+    @InjectModel(UserEntity.name)
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
   async findByEmail(email: string): Promise<User | null> {
@@ -54,11 +55,14 @@ export class UserRepository {
     return deletedUser ? new User(deletedUser.toUser()) : null;
   }
 
-  async comparePassword(user: UserSchema, password: string): Promise<boolean> {
+  async comparePassword(
+    user: UserDocument,
+    password: string,
+  ): Promise<boolean> {
     return await user.comparePassword(password);
   }
 
-  async getRawUserByEmail(email: string): Promise<UserSchema | null> {
+  async getRawUserByEmail(email: string): Promise<UserDocument | null> {
     return await this.userModel.findOne({ email }).exec();
   }
 }

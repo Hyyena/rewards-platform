@@ -1,13 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { EventStatus } from '../domain/event';
 import { Event } from '../domain/event';
+
+export type EventDocument = HydratedDocument<EventEntity>;
 
 @Schema({
   timestamps: true,
   collection: 'events',
 })
-export class EventDocument extends Document {
+export class EventEntity {
   @Prop({ required: true, index: true })
   name: string;
 
@@ -28,6 +30,9 @@ export class EventDocument extends Document {
   })
   status: EventStatus;
 
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
   toEvent(): Event {
     return new Event({
       id: this._id.toString(),
@@ -42,8 +47,8 @@ export class EventDocument extends Document {
   }
 }
 
-export const EventSchema = SchemaFactory.createForClass(EventDocument);
-
+export const EventSchema = SchemaFactory.createForClass(EventEntity);
+EventSchema.methods.toEvent = EventEntity.prototype.toEvent;
 EventSchema.index({ name: 1 }, { unique: true });
 EventSchema.index({ startDate: 1, endDate: 1 });
 EventSchema.index({ status: 1 });

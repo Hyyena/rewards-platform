@@ -1,16 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
 import { RewardType, Reward } from '../domain/reward';
+
+export type RewardDocument = HydratedDocument<RewardEntity>;
 
 @Schema({
   timestamps: true,
   collection: 'rewards',
 })
-export class RewardDocument extends Document {
+export class RewardEntity {
   @Prop({
     required: true,
     type: MongooseSchema.Types.ObjectId,
-    ref: 'EventDocument',
+    ref: 'EventEntity',
     index: true,
   })
   eventId: string;
@@ -24,6 +26,9 @@ export class RewardDocument extends Document {
   @Prop({ required: true })
   description: string;
 
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
   toReward(): Reward {
     return new Reward({
       id: this._id.toString(),
@@ -37,6 +42,6 @@ export class RewardDocument extends Document {
   }
 }
 
-export const RewardSchema = SchemaFactory.createForClass(RewardDocument);
-
+export const RewardSchema = SchemaFactory.createForClass(RewardEntity);
+RewardSchema.methods.toReward = RewardEntity.prototype.toReward;
 RewardSchema.index({ eventId: 1, type: 1 }, { unique: true });

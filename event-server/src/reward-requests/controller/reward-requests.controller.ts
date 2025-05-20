@@ -29,8 +29,8 @@ export class RewardRequestsController {
   @Post()
   @UseGuards(JwtAuthGuard)
   async create(
-    @Body() createRequestDto: CreateRewardRequestDto,
     @Request() req: any,
+    @Body() createRequestDto: CreateRewardRequestDto,
   ): Promise<RewardRequestResponseDto> {
     createRequestDto.userId = req.user.id;
 
@@ -40,10 +40,10 @@ export class RewardRequestsController {
   @Get()
   @UseGuards(JwtAuthGuard)
   async findAll(
+    @Request() req: any,
     @Query('userId') userId?: string,
     @Query('eventId') eventId?: string,
     @Query('status') status?: RewardRequestStatus,
-    @Request() req: any,
   ): Promise<RewardRequestResponseDto[]> {
     if (req.user.role === UserRole.USER) {
       return this.rewardRequestsService.findByUserId(req.user.id);
@@ -67,8 +67,8 @@ export class RewardRequestsController {
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   async findOne(
-    @Param('id') id: string,
     @Request() req: any,
+    @Param('id') id: string,
   ): Promise<RewardRequestResponseDto> {
     const request = await this.rewardRequestsService.findById(id);
 

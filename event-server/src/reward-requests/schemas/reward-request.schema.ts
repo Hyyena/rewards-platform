@@ -1,19 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
 import { RewardRequestStatus, RewardRequest } from '../domain/reward-request';
+
+export type RewardRequestDocument = HydratedDocument<RewardRequestEntity>;
 
 @Schema({
   timestamps: true,
   collection: 'reward_requests',
 })
-export class RewardRequestDocument extends Document {
+export class RewardRequestEntity {
   @Prop({ required: true, index: true })
   userId: string;
 
   @Prop({
     required: true,
     type: MongooseSchema.Types.ObjectId,
-    ref: 'EventDocument',
+    ref: 'EventEntity',
     index: true,
   })
   eventId: string;
@@ -21,7 +23,7 @@ export class RewardRequestDocument extends Document {
   @Prop({
     required: true,
     type: MongooseSchema.Types.ObjectId,
-    ref: 'RewardDocument',
+    ref: 'RewardEntity',
     index: true,
   })
   rewardId: string;
@@ -49,6 +51,9 @@ export class RewardRequestDocument extends Document {
   @Prop({ required: true, unique: true, index: true })
   requestIdempotencyKey: string;
 
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
   toRewardRequest(): RewardRequest {
     return new RewardRequest({
       id: this._id.toString(),
@@ -67,12 +72,10 @@ export class RewardRequestDocument extends Document {
   }
 }
 
-export const RewardRequestSchema = SchemaFactory.createForClass(
-  RewardRequestDocument,
-);
-
+export const RewardRequestSchema =
+  SchemaFactory.createForClass(RewardRequestEntity);
+RewardRequestSchema.methods.toRewardRequest =
+  RewardRequestEntity.prototype.toRewardRequest;
 RewardRequestSchema.index({ userId: 1, eventId: 1 });
-
 RewardRequestSchema.index({ userId: 1, rewardId: 1 });
-
 RewardRequestSchema.index({ status: 1 });

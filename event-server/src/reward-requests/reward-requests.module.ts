@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
-  RewardRequestDocument,
+  RewardRequestEntity,
   RewardRequestSchema,
 } from './schemas/reward-request.schema';
 import { RewardRequestsController } from './controller/reward-requests.controller';
@@ -14,7 +14,7 @@ import { EventConditionsModule } from '../event-conditions/event-conditions.modu
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: RewardRequestDocument.name, schema: RewardRequestSchema },
+      { name: RewardRequestEntity.name, schema: RewardRequestSchema },
     ]),
     EventsModule,
     RewardsModule,

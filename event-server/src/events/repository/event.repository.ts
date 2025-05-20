@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { EventDocument } from '../schemas/event.schema';
+import { EventDocument, EventEntity } from '../schemas/event.schema';
 import { Event } from '../domain/event';
 
 @Injectable()
 export class EventRepository {
   constructor(
-    @InjectModel(EventDocument.name)
+    @InjectModel(EventEntity.name)
     private readonly eventModel: Model<EventDocument>,
   ) {}
 

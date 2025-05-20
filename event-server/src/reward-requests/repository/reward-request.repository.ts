@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { RewardRequestDocument } from '../schemas/reward-request.schema';
+import {
+  RewardRequestDocument,
+  RewardRequestEntity,
+} from '../schemas/reward-request.schema';
 import { RewardRequest, RewardRequestStatus } from '../domain/reward-request';
 
 @Injectable()
 export class RewardRequestRepository {
   constructor(
-    @InjectModel(RewardRequestDocument.name)
+    @InjectModel(RewardRequestEntity.name)
     private readonly rewardRequestModel: Model<RewardRequestDocument>,
   ) {}
 

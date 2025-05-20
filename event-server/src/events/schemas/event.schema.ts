@@ -10,23 +10,22 @@ export type EventDocument = HydratedDocument<EventEntity>;
   collection: 'events',
 })
 export class EventEntity {
-  @Prop({ required: true, index: true })
+  @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true, type: Date, index: true })
+  @Prop({ required: true, type: Date })
   startDate: Date;
 
-  @Prop({ required: true, type: Date, index: true })
+  @Prop({ required: true, type: Date })
   endDate: Date;
 
   @Prop({
     type: String,
     enum: EventStatus,
     default: EventStatus.INACTIVE,
-    index: true,
   })
   status: EventStatus;
 

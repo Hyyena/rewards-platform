@@ -9,14 +9,13 @@ export type RewardRequestDocument = HydratedDocument<RewardRequestEntity>;
   collection: 'reward_requests',
 })
 export class RewardRequestEntity {
-  @Prop({ required: true, index: true })
+  @Prop({ required: true })
   userId: string;
 
   @Prop({
     required: true,
     type: MongooseSchema.Types.ObjectId,
     ref: 'EventEntity',
-    index: true,
   })
   eventId: string;
 
@@ -24,7 +23,6 @@ export class RewardRequestEntity {
     required: true,
     type: MongooseSchema.Types.ObjectId,
     ref: 'RewardEntity',
-    index: true,
   })
   rewardId: string;
 
@@ -32,7 +30,6 @@ export class RewardRequestEntity {
     type: String,
     enum: RewardRequestStatus,
     default: RewardRequestStatus.REQUESTED,
-    index: true,
   })
   status: RewardRequestStatus;
 
@@ -48,7 +45,7 @@ export class RewardRequestEntity {
   @Prop({ type: String })
   rejectionReason?: string;
 
-  @Prop({ required: true, unique: true, index: true })
+  @Prop({ required: true, unique: true })
   requestIdempotencyKey: string;
 
   _id: Types.ObjectId;
